@@ -9,7 +9,7 @@
 #define closesocket close
 #endif
 
-#include <iostream>
+#include <stdio.h>
 #include <cstring>
 
 #define PORT 12345
@@ -79,10 +79,10 @@ int main(int argc, char* argv[])
 	{
 		printf("Accept failed.\n");
 	}
-	std::cout << "Accept Client_fd: " << client_fd << std::endl;
-	char* cIp = inet_ntoa(cadder.sin_addr);
-	int cPort = ntohs(cadder.sin_port);
-	printf("client IP is %s, port is %d\n", cIp, cPort);
+	printf("Accept Client_fd: %d\n",client_fd);
+	char* ip = inet_ntoa(cadder.sin_addr);
+	int port = ntohs(cadder.sin_port);
+	printf("client IP is %s, port is %d\n", ip, port);
 
 	/// 处理客户端数据
 	char buffer[BUFFER_SIZE] = { 0 };
