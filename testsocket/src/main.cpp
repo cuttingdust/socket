@@ -10,7 +10,7 @@
 #endif
 
 #include <stdio.h>
-#include <cstring>
+#include <string.h>
 
 #define PORT 12345
 #define BUFFER_SIZE 1024
@@ -63,9 +63,7 @@ int main(int argc, char* argv[])
 
 	printf("Server listening on port %d\n", PORT);
 
-	// while (true)
-	// {
-		/// 接受连接
+	/// 接受连接
 	sockaddr_in cadder = {};
 #ifdef _WIN32
 	int cadderlen;
@@ -79,42 +77,41 @@ int main(int argc, char* argv[])
 	{
 		printf("Accept failed.\n");
 	}
-	printf("Accept Client_fd: %d\n",client_fd);
+	printf("Accept Client_fd: %d\n", client_fd);
 	char* ip = inet_ntoa(cadder.sin_addr);
 	int port = ntohs(cadder.sin_port);
 	printf("client IP is %s, port is %d\n", ip, port);
 
 	/// 处理客户端数据
 	char buffer[BUFFER_SIZE] = { 0 };
-	while (true)
+
+	for (;;)
 	{
-		int bytes_received = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
-		if (bytes_received <= 0) {
-			std::cerr << "Client disconnected or error occurred." << std::endl;
+		const int recvlen = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
+		if (recvlen <= 0) {
+			printf("Client disconnected or error occurred.\n");
 			break;
 		}
-		buffer[bytes_received] = '\0';
-		if (strstr(buffer, "quit") != nullptr)
+		buffer[recvlen] = '\0';
+		if (strstr(buffer, "quit") != NULL)
 		{
-			std::cout << "Client quit." << std::endl;
+			printf("Client quit.\n");
+			send(client_fd, "quit\n", 4, 0);
 			break;
 		}
-		std::cout << "Recv: " << std::string(buffer, bytes_received) << std::endl;
-		send(client_fd, buffer, bytes_received, 0); /// Echo back
+		printf("Recv: %s\n", buffer);
+		send(client_fd, buffer, recvlen, 0); /// Echo back
 	}
 
 
 	if (closesocket(socked_fd) < 0)
 	{
-		std::cerr << "Failed to close socket." << std::endl;
+		printf("Failed to close socket.\n");
 	}
-	// }
 
 	/// 清理
 #ifdef _WIN32
 	WSACleanup();
 #endif
-
-	std::cout << "Hello World" << std::endl;
 	return 0;
 }
