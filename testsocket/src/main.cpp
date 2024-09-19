@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
 	char buffer[BUFFER_SIZE] = { 0 };
 	while (true)
 	{
-		int bytes_received = recv(client_fd, buffer, BUFFER_SIZE - 1, 0);
+		int bytes_received = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
 		if (bytes_received <= 0) {
 			std::cerr << "Client disconnected or error occurred." << std::endl;
 			break;
