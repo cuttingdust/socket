@@ -1,5 +1,6 @@
 #ifdef _WIN32
 #include <winsock2.h>
+#define socklen_t int
 #pragma comment(lib, "ws2_32.lib")
 #else
 #include <sys/socket.h>
@@ -11,9 +12,48 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <thread>
 
 #define PORT 12345
 #define BUFFER_SIZE 1024
+
+class TcpThread
+{
+public:
+	/// 线程函数
+	void Main()
+	{
+		/// 处理客户端数据
+		char buffer[BUFFER_SIZE] = { 0 };
+
+		for (;;)
+		{
+			const int recvlen = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
+			if (recvlen <= 0) {
+				printf("Client disconnected or error occurred.\n");
+				break;
+			}
+			buffer[recvlen] = '\0';
+			if (strstr(buffer, "quit") != NULL)
+			{
+				printf("Client quit.\n");
+				send(client_fd, "quit success\n", 13, 0);
+				break;
+			}
+			printf("Recv: %s\n", buffer);
+			send(client_fd, "ok\n",3, 0); /// Echo back
+		}
+
+		if (closesocket(client_fd) < 0)
+		{
+			printf("Failed to close client socket.\n");
+		}
+
+		delete this;
+	}
+public:
+	int client_fd = -1;
+};
 
 
 int main(int argc, char* argv[])
@@ -64,45 +104,27 @@ int main(int argc, char* argv[])
 	printf("Server listening on port %d\n", PORT);
 
 	/// 接受连接
-	sockaddr_in cadder = {};
-#ifdef _WIN32
-	int cadderlen;
-#else
-	socklen_t cadderlen;
-#endif
-
-	cadderlen = sizeof(cadder);
-	int client_fd = accept(socked_fd, reinterpret_cast<struct sockaddr*>(&cadder), &cadderlen);
-	if (client_fd < 0)
-	{
-		printf("Accept failed.\n");
-	}
-	printf("Accept Client_fd: %d\n", client_fd);
-	char* ip = inet_ntoa(cadder.sin_addr);
-	int port = ntohs(cadder.sin_port);
-	printf("client IP is %s, port is %d\n", ip, port);
-
-	/// 处理客户端数据
-	char buffer[BUFFER_SIZE] = { 0 };
 
 	for (;;)
 	{
-		const int recvlen = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
-		if (recvlen <= 0) {
-			printf("Client disconnected or error occurred.\n");
-			break;
-		}
-		buffer[recvlen] = '\0';
-		if (strstr(buffer, "quit") != NULL)
+		sockaddr_in cadder = {};
+		socklen_t cadderlen = sizeof(cadder);
+		int client_fd = accept(socked_fd, reinterpret_cast<struct sockaddr*>(&cadder), &cadderlen);
+		if (client_fd < 0)
 		{
-			printf("Client quit.\n");
-			send(client_fd, "quit\n", 4, 0);
+			printf("Accept failed.\n");
 			break;
 		}
-		printf("Recv: %s\n", buffer);
-		send(client_fd, buffer, recvlen, 0); /// Echo back
-	}
+		printf("Accept Client_fd: %d\n", client_fd);
+		char* ip = inet_ntoa(cadder.sin_addr);
+		int port = ntohs(cadder.sin_port);
+		printf("client IP is %s, port is %d\n", ip, port);
 
+		TcpThread* tcpThread = new TcpThread;
+		tcpThread->client_fd = client_fd;
+		std::thread th(&TcpThread::Main, tcpThread);
+		th.detach();
+	}
 
 	if (closesocket(socked_fd) < 0)
 	{
