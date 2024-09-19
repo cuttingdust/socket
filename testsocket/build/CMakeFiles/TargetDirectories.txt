@@ -1,3 +1,0 @@
-/Users/handabao/MyFile/socket/testsocket/build/CMakeFiles/testsocket.dir
-/Users/handabao/MyFile/socket/testsocket/build/CMakeFiles/edit_cache.dir
-/Users/handabao/MyFile/socket/testsocket/build/CMakeFiles/rebuild_cache.dir
