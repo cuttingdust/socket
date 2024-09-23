@@ -184,3 +184,18 @@ auto XTCP::connect(const char* ip, unsigned short port) -> bool
 	printf("Connected to %s:%d\n", ip, port);
 	return true;
 }
+
+auto XTCP::setBlock(bool is_block) -> void
+{
+	if (impl_->socked_fd_ < 0)
+	{
+		printf("Socket is not created.\n");
+		return;
+	}
+
+	unsigned long ul = 0;
+	if (!is_block) ul = 1;
+
+	printf("Set socket %d to %s\n", impl_->socked_fd_, !ul ? "block" : "non-block");
+	::ioctlsocket(ul, FIONBIO, &ul);
+}

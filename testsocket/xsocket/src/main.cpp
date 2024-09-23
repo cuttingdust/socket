@@ -46,9 +46,11 @@ int main(int argc, char* argv[])
 	{
 		if (strcmp(argv[1], "client") == 0)
 		{
-
 			printf("Client start.\n");
 			XTCP xclient;
+			xclient.createSocket();
+			xclient.setBlock(false);
+
 			xclient.connect("127.0.0.1", PORT);
 			xclient.send("Hello, server.\n", 15);
 			char buffer[BUFFER_SIZE] = { 0 };
@@ -62,6 +64,7 @@ int main(int argc, char* argv[])
 		printf("Server start.\n");
 
 		XTCP xserver;
+		xserver.createSocket();
 		xserver.bind(PORT);
 
 		/// 接受连接

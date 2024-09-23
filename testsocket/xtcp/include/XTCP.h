@@ -59,6 +59,10 @@ public:
 	/// \return 
 	auto connect(const char* ip, unsigned short port) -> bool;
 
+	/// \brief ÊÇ·ñ×èÈûÁ¬½Ó 
+	/// \param is_block 
+	auto setBlock(bool is_block) -> void;
+
 private:
 	class PImpl;
 	std::shared_ptr<PImpl> impl_;
