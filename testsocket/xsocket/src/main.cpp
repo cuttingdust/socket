@@ -1,6 +1,7 @@
 #include "XTCP.h"
 
 #include <thread>
+#include <cstring>
 
 #define PORT 12345
 #define BUFFER_SIZE 1024
