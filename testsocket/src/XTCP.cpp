@@ -73,7 +73,7 @@ auto XTCP::createSocket() const -> int
 		return static_cast<int>(impl_->socked_fd_);
 	}
 
-	printf("Socket %llu created.\n", impl_->socked_fd_);
+	printf("Socket %d created.\n", impl_->socked_fd_);
 
 	return static_cast<int>(impl_->socked_fd_);
 }
@@ -116,7 +116,7 @@ auto XTCP::accepct() -> XTCP
 	auto client_fd = ::accept(impl_->socked_fd_, reinterpret_cast<sockaddr*>(&cadder), &cadderlen);
 	if (client_fd < 0)
 	{
-		printf("Accept failed with error: %d\n", WSAGetLastError());
+		printf("Accept failed\n");
 		return tcp;
 	}
 	printf("Accept Client_fd: %d\n", client_fd);
@@ -135,7 +135,7 @@ auto XTCP::close() -> void
 	if (impl_->socked_fd_ < 0)
 		return;
 
-	if (closesocket(impl_->socked_fd_) < 0)
+	if (::closesocket(impl_->socked_fd_) < 0)
 	{
 		printf("Failed to close socket.\n");
 		return;
