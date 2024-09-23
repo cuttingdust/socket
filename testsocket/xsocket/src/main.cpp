@@ -51,6 +51,9 @@ int main(int argc, char* argv[])
 			XTCP xclient;
 			xclient.connect("127.0.0.1", PORT);
 			xclient.send("Hello, server.\n", 15);
+			char buffer[BUFFER_SIZE] = { 0 };
+			xclient.recv(buffer, BUFFER_SIZE);
+			printf("Recv: %s\n", buffer);
 			xclient.close();
 		}
 	}
