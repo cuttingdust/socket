@@ -1,16 +1,15 @@
 cmake_minimum_required(VERSION 3.12)
 
+project(socket)
+
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_GENERATOR_PLATFORM x64)
 
-project(testsocket)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(CommonTools)
 
-aux_source_directory(src SRC)
-file(GLOB INCLUDE include/*.h)
-
-add_executable(${PROJECT_NAME} ${INCLUDE} ${SRC})
-
-target_include_directories(${PROJECT_NAME} PRIVATE include)
+add_subdirectory(xsocket)
+add_subdirectory(xtcp)

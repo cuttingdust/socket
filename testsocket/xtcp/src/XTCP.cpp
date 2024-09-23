@@ -7,8 +7,8 @@
 #else
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <arpa/inet.h> // For inet_addr
-#include <unistd.h> // 包含 close 函数
+#include <arpa/inet.h> /// For inet_addr
+#include <unistd.h> /// 包含 close 函数
 #define closesocket close
 #endif
 

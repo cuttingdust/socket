@@ -3,6 +3,7 @@
  * @brief
  *
  * Detailed description if necessary.
+ * tcp ÍøÂç¿â
  *
  * @author 31667
  * @date   2024-09-19
@@ -11,10 +12,9 @@
 #ifndef XTCP_H
 #define XTCP_H
 
+#include "XTCP_Global.h"
 
-#include <memory>
-
-class XTCP
+class XTCP_EXPORT XTCP
 {
 public:
 	XTCP();
