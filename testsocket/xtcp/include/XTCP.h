@@ -60,8 +60,9 @@ public:
 	auto connect(const char* ip, unsigned short port) -> bool;
 
 	/// \brief ÊÇ·ñ×èÈûÁ¬½Ó 
-	/// \param is_block 
-	auto setBlock(bool is_block) -> void;
+	/// \param is_block
+  /// \return 
+	auto setBlock(bool is_block) -> bool;
 
 private:
 	class PImpl;

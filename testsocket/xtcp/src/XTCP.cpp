@@ -9,6 +9,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h> /// For inet_addr
 #include <unistd.h> /// °üº¬ close º¯Êý
+#include <fcntl.h>
 #define closesocket close
 #endif
 
@@ -185,17 +186,45 @@ auto XTCP::connect(const char* ip, unsigned short port) -> bool
 	return true;
 }
 
-auto XTCP::setBlock(bool is_block) -> void
+auto XTCP::setBlock(bool is_block) -> bool
 {
-	if (impl_->socked_fd_ < 0)
-	{
-		printf("Socket is not created.\n");
-		return;
-	}
+    if (impl_->socked_fd_< 0) 
+    {
+        printf("Socket is not created.\n");
+        return false; // ·µ»ØÊ§°Ü×´Ì¬
+    }
 
-	unsigned long ul = 0;
-	if (!is_block) ul = 1;
+#ifdef _WIN32
+    u_long mode = is_block ? 0 : 1; // 0=×èÈû, 1=·Ç×èÈû
+    if (::ioctlsocket(impl_->socked_fd_, FIONBIO, &mode) != 0) 
+    {
+        perror("ioctlsocket failed");
+        return false; // ·µ»ØÊ§°Ü×´Ì¬
+    }
+#else
+    int flags = fcntl(impl_->socked_fd_, F_GETFL, 0);
+    if (flags == -1)
+    {
+        perror("fcntl get failed");
+        return false; // ·µ»ØÊ§°Ü×´Ì¬
+    }
 
-	printf("Set socket %d to %s\n", impl_->socked_fd_, !ul ? "block" : "non-block");
-	::ioctlsocket(ul, FIONBIO, &ul);
-}
+    // ÉèÖÃ»òÇå³ý·Ç×èÈû±êÖ¾
+    if (is_block) 
+    {
+        flags &= ~O_NONBLOCK; // Çå³ý·Ç×èÈûÎ»
+    } else {
+        flags |= O_NONBLOCK;  // ÉèÖÃ·Ç×èÈûÎ»
+    }
+
+    // ¸üÐÂÌ×½Ó×Ö×´Ì¬
+    if (fcntl(impl_->socked_fd_, F_SETFL, flags) == -1) 
+    {
+        perror("fcntl set failed");
+        return false; // ·µ»ØÊ§°Ü×´Ì¬
+    }
+#endif
+
+    printf("Socket %d set to %s mode\n", impl_->socked_fd_, is_block ? "blocking" : "non-blocking");
+    return true; // ·µ»Ø³É¹¦×´Ì¬
+  }
