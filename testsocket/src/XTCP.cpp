@@ -25,7 +25,7 @@ public:
 
 public:
 	XTCP* owenr_ = nullptr;
-	SOCKET socked_fd_ = -1;
+	int socked_fd_ = -1;
 
 	char ip_[16];
 	unsigned short port_ = -1;
