@@ -3,7 +3,7 @@
 #include <thread>
 #include <cstring>
 
-#define PORT 12345
+#define PORT 8080
 #define BUFFER_SIZE 1024
 
 class TcpThread
@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
 			printf("Client start.\n");
 			XTCP xclient;
 			xclient.createSocket();
-			xclient.setBlock(false);
+			// xclient.setBlock(false);
 
 			xclient.connect("127.0.0.1", PORT);
 			xclient.send("Hello, server.\n", 15);
