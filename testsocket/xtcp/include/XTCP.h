@@ -52,6 +52,13 @@ public:
 	/// \brief 是否有效
 	/// \return 
 	auto isVaild() const -> bool;
+
+	/// \brief 连接TCP服务器
+	/// \param ip 
+	/// \param port 
+	/// \return 
+	auto connect(const char* ip, unsigned short port) -> bool;
+
 private:
 	class PImpl;
 	std::shared_ptr<PImpl> impl_;

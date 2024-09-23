@@ -1,19 +1,5 @@
-#ifdef _WIN32
-#include <winsock2.h>
-#define socklen_t int
-#pragma comment(lib, "ws2_32.lib")
-#else
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h> // For inet_addr
-#include <unistd.h> // 包含 close 函数
-#define closesocket close
-#endif
-
 #include "XTCP.h"
 
-#include <stdio.h>
-#include <string.h>
 #include <thread>
 
 #define PORT 12345
@@ -56,25 +42,42 @@ public:
 
 int main(int argc, char* argv[])
 {
-	XTCP xserver;
-	auto socked_fd = xserver.createSocket();
-
-	xserver.bind(PORT);
-
-	/// 接受连接
-	for (;;)
+	if (argc > 1)
 	{
-		auto client = xserver.accepct();
-		if (!client.isVaild())
+		if (strcmp(argv[1], "client") == 0)
 		{
-			break;
+
+			printf("Client start.\n");
+			XTCP xclient;
+			xclient.connect("127.0.0.1", PORT);
+			xclient.send("Hello, server.\n", 15);
+			xclient.close();
+		}
+	}
+	else
+	{
+		printf("Server start.\n");
+
+		XTCP xserver;
+		xserver.bind(PORT);
+
+		/// 接受连接
+		for (;;)
+		{
+			auto client = xserver.accepct();
+			if (!client.isVaild())
+			{
+				break;
+			}
+
+			TcpThread* tcpThread = new TcpThread;
+			tcpThread->client_xtcp_ = client;
+			std::thread th(&TcpThread::Main, tcpThread);
+			th.detach();
 		}
 
-		TcpThread* tcpThread = new TcpThread;
-		tcpThread->client_xtcp_ = client;
-		std::thread th(&TcpThread::Main, tcpThread);
-		th.detach();
+		xserver.close();
 	}
 
-	xserver.close();
+
 }

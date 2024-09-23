@@ -162,3 +162,25 @@ auto XTCP::isVaild() const -> bool
 {
 	return impl_->socked_fd_ >= 0;
 }
+
+auto XTCP::connect(const char* ip, unsigned short port) -> bool
+{
+	if (impl_->socked_fd_ < 0)
+		createSocket();
+
+	struct sockaddr_in sadder = {};
+	sadder.sin_family = AF_INET;
+	sadder.sin_addr.s_addr = inet_addr(ip);
+	sadder.sin_port = htons(port);
+
+	if (::connect(impl_->socked_fd_, reinterpret_cast<struct sockaddr*>(&sadder), sizeof(sadder)) < 0)
+	{
+		printf("Connect failed\n");
+		return false;
+	}
+
+	strcpy(impl_->ip_, ip);
+	impl_->port_ = port;
+	printf("Connected to %s:%d\n", ip, port);
+	return true;
+}
