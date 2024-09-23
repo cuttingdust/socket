@@ -12,3 +12,5 @@ aux_source_directory(src SRC)
 file(GLOB INCLUDE include/*.h)
 
 add_executable(${PROJECT_NAME} ${INCLUDE} ${SRC})
+
+target_include_directories(${PROJECT_NAME} PRIVATE include)
