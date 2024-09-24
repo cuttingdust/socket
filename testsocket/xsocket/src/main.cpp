@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
 			xclient.createSocket();
 			// xclient.setBlock(false);
 
-			xclient.connect("127.0.0.1", PORT);
+			xclient.connect("127.0.0.1", PORT, 3000);
 			xclient.send("Hello, server.\n", 15);
 			char buffer[BUFFER_SIZE] = { 0 };
 			xclient.recv(buffer, BUFFER_SIZE);
@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
 		XTCP xserver;
 		xserver.createSocket();
 		xserver.setBlock(false);
-    xserver.bind(PORT);
+		xserver.bind(PORT);
 
 		/// 接受连接
 		for (;;)

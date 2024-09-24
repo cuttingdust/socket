@@ -68,9 +68,6 @@ auto XTCP::createSocket() const -> int
 	if (impl_->socked_fd_ < 0)
 	{
 		printf("Failed to create socket.\n");
-#ifdef _WIN32
-		WSACleanup(); ///  只有在Windows上才能调用
-#endif
 		return static_cast<int>(impl_->socked_fd_);
 	}
 
@@ -173,26 +170,27 @@ auto XTCP::connect(const char* ip, unsigned short port, int timeoutms) -> bool
 	sadder.sin_family = AF_INET;
 	sadder.sin_addr.s_addr = inet_addr(ip);
 	sadder.sin_port = htons(port);
+	setBlock(false);
 
-  fd_set set;
+	fd_set set;
 	if (::connect(impl_->socked_fd_, reinterpret_cast<struct sockaddr*>(&sadder), sizeof(sadder)) < 0)
 	{
-    FD_ZERO(&set);
-    FD_SET(impl_->socked_fd_, &set);
+		FD_ZERO(&set);
+		FD_SET(impl_->socked_fd_, &set);
 
-    timeval tm;
-    tm.tv_sec = 0;
-    tm.tv_usec = timeoutms * 1000;
+		timeval tm;
+		tm.tv_sec = 0;
+		tm.tv_usec = timeoutms * 1000;
 
-    if(select(impl_->socked_fd_ + 1, 0) <= 0)
-    {
-      printf("connect timeout or error!\n");
-		  printf("Connect %s:%d failed:%s\n", ip, port, strerror(errno));
-      return false;
-    }
+		if (::select(impl_->socked_fd_ + 1, 0, &set, 0, &tm) <= 0)
+		{
+			printf("connect timeout or error!\n");
+			printf("Connect %s:%d failed:%s\n", ip, port, strerror(errno));
+			return false;
+		}
 
-    setBlock(true);
-    printf("connect %s:%d success!\n", ip, port);
+		setBlock(true);
+		printf("connect %s:%d success!\n", ip, port);
 		return true;
 	}
 
@@ -204,43 +202,44 @@ auto XTCP::connect(const char* ip, unsigned short port, int timeoutms) -> bool
 
 auto XTCP::setBlock(bool is_block) -> bool
 {
-    if (impl_->socked_fd_< 0) 
-    {
-        printf("Socket is not created.\n");
-        return false; // 返回失败状态
-    }
+	if (impl_->socked_fd_ < 0)
+	{
+		printf("Socket is not created.\n");
+		return false; // 返回失败状态
+	}
 
 #ifdef _WIN32
-    u_long mode = is_block ? 0 : 1; // 0=阻塞, 1=非阻塞
-    if (::ioctlsocket(impl_->socked_fd_, FIONBIO, &mode) != 0) 
-    {
-        perror("ioctlsocket failed");
-        return false; // 返回失败状态
-    }
+	u_long mode = is_block ? 0 : 1; // 0=阻塞, 1=非阻塞
+	if (::ioctlsocket(impl_->socked_fd_, FIONBIO, &mode) != 0)
+	{
+		perror("ioctlsocket failed");
+		return false; // 返回失败状态
+	}
 #else
-    int flags = fcntl(impl_->socked_fd_, F_GETFL, 0);
-    if (flags == -1)
-    {
-        perror("fcntl get failed");
-        return false; // 返回失败状态
-    }
+	int flags = fcntl(impl_->socked_fd_, F_GETFL, 0);
+	if (flags == -1)
+	{
+		perror("fcntl get failed");
+		return false; // 返回失败状态
+	}
 
-    // 设置或清除非阻塞标志
-    if (is_block) 
-    {
-        flags &= ~O_NONBLOCK; // 清除非阻塞位
-    } else {
-        flags |= O_NONBLOCK;  // 设置非阻塞位
-    }
+	// 设置或清除非阻塞标志
+	if (is_block)
+	{
+		flags &= ~O_NONBLOCK; // 清除非阻塞位
+	}
+	else {
+		flags |= O_NONBLOCK;  // 设置非阻塞位
+	}
 
-    // 更新套接字状态
-    if (fcntl(impl_->socked_fd_, F_SETFL, flags) == -1) 
-    {
-        perror("fcntl set failed");
-        return false; // 返回失败状态
-    }
+	// 更新套接字状态
+	if (fcntl(impl_->socked_fd_, F_SETFL, flags) == -1)
+	{
+		perror("fcntl set failed");
+		return false; // 返回失败状态
+	}
 #endif
 
-    printf("Socket %d set to %s mode\n", impl_->socked_fd_, is_block ? "blocking" : "non-blocking");
-    return true; // 返回成功状态
-  }
+	printf("Socket %d set to %s mode\n", impl_->socked_fd_, is_block ? "blocking" : "non-blocking");
+	return true; // 返回成功状态
+}
