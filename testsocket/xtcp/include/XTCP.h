@@ -57,7 +57,7 @@ public:
 	/// \param ip 
 	/// \param port 
 	/// \return 
-	auto connect(const char* ip, unsigned short port) -> bool;
+	auto connect(const char* ip, unsigned short port, int timeoutms = 1000) -> bool;
 
 	/// \brief ÊÇ·ñ×èÈûÁ¬½Ó 
 	/// \param is_block

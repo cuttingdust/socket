@@ -66,7 +66,8 @@ int main(int argc, char* argv[])
 
 		XTCP xserver;
 		xserver.createSocket();
-		xserver.bind(PORT);
+		xserver.setBlock(false);
+    xserver.bind(PORT);
 
 		/// 接受连接
 		for (;;)

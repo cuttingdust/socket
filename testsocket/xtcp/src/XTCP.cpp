@@ -164,7 +164,7 @@ auto XTCP::isVaild() const -> bool
 	return impl_->socked_fd_ >= 0;
 }
 
-auto XTCP::connect(const char* ip, unsigned short port) -> bool
+auto XTCP::connect(const char* ip, unsigned short port, int timeoutms) -> bool
 {
 	if (impl_->socked_fd_ < 0)
 		createSocket();
@@ -174,10 +174,26 @@ auto XTCP::connect(const char* ip, unsigned short port) -> bool
 	sadder.sin_addr.s_addr = inet_addr(ip);
 	sadder.sin_port = htons(port);
 
+  fd_set set;
 	if (::connect(impl_->socked_fd_, reinterpret_cast<struct sockaddr*>(&sadder), sizeof(sadder)) < 0)
 	{
-		printf("Connect failed\n");
-		return false;
+    FD_ZERO(&set);
+    FD_SET(impl_->socked_fd_, &set);
+
+    timeval tm;
+    tm.tv_sec = 0;
+    tm.tv_usec = timeoutms * 1000;
+
+    if(select(impl_->socked_fd_ + 1, 0) <= 0)
+    {
+      printf("connect timeout or error!\n");
+		  printf("Connect %s:%d failed:%s\n", ip, port, strerror(errno));
+      return false;
+    }
+
+    setBlock(true);
+    printf("connect %s:%d success!\n", ip, port);
+		return true;
 	}
 
 	strcpy(impl_->ip_, ip);
