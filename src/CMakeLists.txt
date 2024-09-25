@@ -12,4 +12,5 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(CommonTools)
 
 add_subdirectory(xsocket)
+add_subdirectory(xepoll)
 add_subdirectory(xtcp)
