@@ -1,6 +1,7 @@
 #include "XTCP.h"
 
 #include <cstring>
+#include <stdio.h>
 
 #define PORT 8080
 #define BUFFER_SIZE 1024
@@ -54,13 +55,20 @@ int main(int argc, char *argv[])
 #ifdef __LINUX__
         int count = epoll_wait(epfd, event, 20, 500);
 #elif __APPLE__
-        int count = kevent(epid, &changes, 0, &event, 20, 500);
+        struct timespec timeout;
+        timeout.tv_sec = 0; // 指定超时时间为 0 秒
+        timeout.tv_nsec = 500000000; // 指定超时时间为 500 毫秒
+        int count = kevent(epid, &changes, 1, event, 20, &timeout);
 #endif
         if (count <= 0)
             continue;
         for (int i = 0; i < count; ++i)
         {
+#ifdef __LINUX__
             if (event[i].data.fd == xserver.getfd())
+#elif __APPLE__
+            if (event[i].ident == xserver.getfd())
+#endif
             {
                 XTCP client = xserver.accept();
                 if (!client.isVaild())
@@ -74,14 +82,18 @@ int main(int argc, char *argv[])
                 ev.events = EPOLLIN | EPOLLET;
                 epoll_ctl(epfd, EPOLL_CTL_ADD, client.getfd(), &ev);
 #elif __APPLE__
-                changes.data.fd = client.getfd();
+                changes.ident = client.getfd();
                 EV_SET(&changes, xserver.getfd(), EVFILT_READ, EV_ADD | EV_ENABLE | EV_CLEAR, 0, 0, NULL);
 #endif
             }
             else
             {
                 XTCP client;
+#ifdef __LINUX__
                 client.setfd(event[i].data.fd);
+#elif __APPLE__
+                client.setfd(event[i].ident);
+#endif
                 client.recv(buffer, BUFFER_SIZE);
                 printf("Recv: %s\n", buffer);
                 client.send(msg, msg_len);
