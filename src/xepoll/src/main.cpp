@@ -14,10 +14,8 @@
 #include <sys/types.h>
 #endif
 
-
 int main(int argc, char *argv[])
 {
-
     printf("Server start.\n");
 
     XTCP xserver;
@@ -43,13 +41,14 @@ int main(int argc, char *argv[])
     struct kevent changes;
     EV_SET(&changes, xserver.getfd(), EVFILT_READ, EV_ADD | EV_ENABLE | EV_CLEAR, 0, 0, NULL);
     struct kevent event[20];
+    kevent(epid, &changes, 1, NULL, 0, NULL); // 注册事件
 #endif
 
     char buffer[BUFFER_SIZE] = {0};
     const char *msg = "HTTP/1.1 200 OK\r\nContent-Length: 1\r\n\r\nX";
     int msg_len = strlen(msg);
 
-    /// accpet client
+    /// accept client
     for (;;)
     {
 #ifdef __linux__
@@ -58,7 +57,7 @@ int main(int argc, char *argv[])
         struct timespec timeout;
         timeout.tv_sec = 0; // 指定超时时间为 0 秒
         timeout.tv_nsec = 500000000; // 指定超时时间为 500 毫秒
-        int count = kevent(epid, &changes, 1, event, 20, &timeout);
+        int count = kevent(epid, NULL, 0, event, 20, &timeout);
 #endif
         if (count <= 0)
             continue;
@@ -82,8 +81,8 @@ int main(int argc, char *argv[])
                 ev.events = EPOLLIN | EPOLLET;
                 epoll_ctl(epfd, EPOLL_CTL_ADD, client.getfd(), &ev);
 #elif __APPLE__
-                changes.ident = client.getfd();
-                EV_SET(&changes, xserver.getfd(), EVFILT_READ, EV_ADD | EV_ENABLE | EV_CLEAR, 0, 0, NULL);
+                EV_SET(&changes, client.getfd(), EVFILT_READ, EV_ADD | EV_ENABLE | EV_CLEAR, 0, 0, NULL);
+                kevent(epid, &changes, 1, NULL, 0, NULL); // 注册新客户端事件
 #endif
             }
             else
@@ -102,7 +101,8 @@ int main(int argc, char *argv[])
 #ifdef __linux__
                 epoll_ctl(epfd, EPOLL_CTL_DEL, client.getfd(), &ev);
 #elif __APPLE__
-                EV_SET(&changes, xserver.getfd(), EVFILT_READ, EV_DELETE, 0, 0, NULL);
+                EV_SET(&changes, client.getfd(), EVFILT_READ, EV_DELETE, 0, 0, NULL);
+                kevent(epid, &changes, 1, NULL, 0, NULL); // 删除客户端事件
 #endif
                 client.close();
             }
