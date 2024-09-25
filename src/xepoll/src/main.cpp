@@ -6,7 +6,7 @@
 #define PORT 8080
 #define BUFFER_SIZE 1024
 
-#ifdef __LINUX__
+#ifdef __linux__
 #include <sys/epoll.h>
 #elif __APPLE__
 #include <sys/event.h>
@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
     // xserver.setBlock(false);
 
     /// create epoll;
-#ifdef __LINUX__
+#ifdef __linux__
     int epfd = epoll_create(256);
 #elif __APPLE__
     int epid = kqueue();
@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
     xserver.bind(PORT);
 
     /// register epoll event
-#ifdef __LINUX__
+#ifdef __linux__
     epoll_event ev;
     ev.data.fd = xserver.getfd();
     ev.events = EPOLLIN | EPOLLET;
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
     /// accpet client
     for (;;)
     {
-#ifdef __LINUX__
+#ifdef __linux__
         int count = epoll_wait(epfd, event, 20, 500);
 #elif __APPLE__
         struct timespec timeout;
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
             continue;
         for (int i = 0; i < count; ++i)
         {
-#ifdef __LINUX__
+#ifdef __linux__
             if (event[i].data.fd == xserver.getfd())
 #elif __APPLE__
             if (event[i].ident == xserver.getfd())
@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
                 }
 
                 /// register new epoll event
-#ifdef __LINUX__
+#ifdef __linux__
                 ev.data.fd = client.getfd();
                 ev.events = EPOLLIN | EPOLLET;
                 epoll_ctl(epfd, EPOLL_CTL_ADD, client.getfd(), &ev);
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
             else
             {
                 XTCP client;
-#ifdef __LINUX__
+#ifdef __linux__
                 client.setfd(event[i].data.fd);
 #elif __APPLE__
                 client.setfd(event[i].ident);
@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
                 client.send(msg, msg_len);
 
                 /// 客户端处理完毕，清理事件
-#ifdef __LINUX__
+#ifdef __linux__
                 epoll_ctl(epfd, EPOLL_CTL_DEL, client.getfd(), &ev);
 #elif __APPLE__
                 EV_SET(&changes, xserver.getfd(), EVFILT_READ, EV_DELETE, 0, 0, NULL);
