@@ -14,63 +14,68 @@
 
 #include "XTCP_Global.h"
 
-class XTCP_EXPORT XTCP {
+class XTCP_EXPORT XTCP
+{
 public:
-  XTCP();
-  virtual ~XTCP();
+    XTCP();
+    virtual ~XTCP();
 
 public:
-  /// \brief 创建socket 套接字
-  /// \return
-  auto createSocket() const -> int;
+    /// \brief 创建socket 套接字
+    /// \return
+    auto createSocket() const -> int;
 
-  /// \brief 绑定端口
-  /// \param port
-  /// \return
-  auto bind(unsigned int port) -> bool;
+    /// \brief 绑定端口
+    /// \param port
+    /// \return
+    auto bind(unsigned int port) -> bool;
 
-  /// \brief 接受链接
-  /// \return 客户端对象
-  auto accepct() -> XTCP;
+    /// \brief 接受链接
+    /// \return 客户端对象
+    auto accept() -> XTCP;
 
-  /// \brief 关闭socket 套接字
-  auto close() -> void;
+    /// \brief 关闭socket 套接字
+    auto close() -> void;
 
-  /// \brief 接受数据
-  /// \param buf 数据
-  /// \param buf_size 数据最大大小
-  /// \return 接受到的大小
-  auto recv(char *buf, int buf_size) -> int;
+    /// \brief 接受数据
+    /// \param buf 数据
+    /// \param buf_size 数据最大大小
+    /// \return 接受到的大小
+    auto recv(char *buf, int buf_size) -> int;
 
-  /// \brief 发送数据
-  /// \param buf 数据
-  /// \param buf_size 发送的最大大小
-  /// \return 发送出去的大小
-  auto send(const char *buf, int buf_size) -> int;
+    /// \brief 发送数据
+    /// \param buf 数据
+    /// \param buf_size 发送的最大大小
+    /// \return 发送出去的大小
+    auto send(const char *buf, int buf_size) -> int;
 
-  /// \brief 是否有效
-  /// \return
-  auto isVaild() const -> bool;
+    /// \brief 是否有效
+    /// \return
+    auto isVaild() const -> bool;
 
-  /// \brief 连接TCP服务器
-  /// \param ip
-  /// \param port
-  /// \return
-  auto connect(const char *ip, unsigned short port,
-               int timeoutms = 1000) -> bool;
+    /// \brief 连接TCP服务器
+    /// \param ip
+    /// \param port
+    /// \return
+    auto connect(const char *ip, unsigned short port, int timeoutms = 1000) -> bool;
 
-  /// \brief 是否阻塞连接
-  /// \param is_block
-  /// \return
-  auto setBlock(bool is_block) -> bool;
+    /// \brief 是否阻塞连接
+    /// \param is_block
+    /// \return
+    auto setBlock(bool is_block) -> bool;
 
-  /// \brief 获取套接字句柄
-  /// \return 句柄
-  auto getfd() const -> int;
+
+    /// \brief 获取socket句柄
+    /// \return 句柄
+    auto getfd() const -> int;
+
+    /// \brief 设置socket句柄
+    /// \param fd
+    auto setfd(int fd) -> void;
 
 private:
-  class PImpl;
-  std::shared_ptr<PImpl> impl_;
+    class PImpl;
+    std::shared_ptr<PImpl> impl_;
 };
 
 #endif // XTCP_H
