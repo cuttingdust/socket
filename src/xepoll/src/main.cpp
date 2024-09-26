@@ -47,6 +47,7 @@ int main(int argc, char *argv[])
     char buffer[BUFFER_SIZE] = {0};
     const char *msg = "HTTP/1.1 200 OK\r\nContent-Length: 1\r\n\r\nX";
     int msg_len = strlen(msg);
+    xserver.setBlock(false);
 
     /// accept client
     for (;;)
@@ -69,21 +70,24 @@ int main(int argc, char *argv[])
             if (event[i].ident == xserver.getfd())
 #endif
             {
-                XTCP client = xserver.accept();
-                if (!client.isVaild())
+                for (;;)
                 {
-                    break;
-                }
+                    XTCP client = xserver.accept();
+                    if (!client.isVaild())
+                    {
+                        break;
+                    }
 
-                /// register new epoll event
+                    /// register new epoll event
 #ifdef __linux__
-                ev.data.fd = client.getfd();
-                ev.events = EPOLLIN | EPOLLET;
-                epoll_ctl(epfd, EPOLL_CTL_ADD, client.getfd(), &ev);
+                    ev.data.fd = client.getfd();
+                    ev.events = EPOLLIN | EPOLLET;
+                    epoll_ctl(epfd, EPOLL_CTL_ADD, client.getfd(), &ev);
 #elif __APPLE__
-                EV_SET(&changes, client.getfd(), EVFILT_READ, EV_ADD | EV_ENABLE | EV_CLEAR, 0, 0, NULL);
-                kevent(epid, &changes, 1, NULL, 0, NULL); // 注册新客户端事件
+                    EV_SET(&changes, client.getfd(), EVFILT_READ, EV_ADD | EV_ENABLE | EV_CLEAR, 0, 0, NULL);
+                    kevent(epid, &changes, 1, NULL, 0, NULL); // 注册新客户端事件
 #endif
+                }
             }
             else
             {
