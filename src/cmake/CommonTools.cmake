@@ -28,21 +28,21 @@ set(OUT_INCLUDE_PATH ${OUT}/include)
 set(OUT_RUN_PATH ${OUT}/bin.x64)
 
 # 安装与查找
-# string(REPLACE "\\" "/" INSTALL_PREFIX $ENV{UPS_ModelEditorSDK1})
-# set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX})
-# message("CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
+string(REPLACE "\\" "/" INSTALL_PREFIX ${OUT})
+set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX})
+message("CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
 
-# set(CMAKE_PREFIX_PATH ${INSTALL_PREFIX}/lib/config)
-# message("CMAKE_PREFIX_PATH = ${CMAKE_PREFIX_PATH}")
+set(CMAKE_PREFIX_PATH ${INSTALL_PREFIX}/lib/config)
+message("CMAKE_PREFIX_PATH = ${CMAKE_PREFIX_PATH}")
 
 # Qt Moudle
-# set(QT4_MOUDLES
-    # Qt4::QtCore
-    # Qt4::QtGui
-    # Qt4::QtXml
-    # Qt4::Qt3Support
-    # Qt4::QtOpenGL
-# )
+set(QT4_MOUDLES
+    Qt4::QtCore
+    Qt4::QtGui
+    Qt4::QtXml
+    Qt4::Qt3Support
+    Qt4::QtOpenGL
+)
 
 # 获取当前目录下源码和头文件
 macro(get_src_include)
@@ -66,8 +66,8 @@ macro(get_src_include)
     endif()
 
     if(QRC_SOURCE_FILES)
-        # qt4_add_resources(QRC_FILES ${QRC_SOURCE_FILES})
-        # qt4_wrap_cpp()
+        qt4_add_resources(QRC_FILES ${QRC_SOURCE_FILES})
+        qt4_wrap_cpp()
         source_group("Resource Files" FILES ${QRC_SOURCE_FILES})
     endif()
 endmacro()
@@ -92,7 +92,7 @@ macro(set_cpp name)
     # 路径被两次引用 1 编译slib库时 2 install export写入config时
     target_include_directories(${name} PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> # install时为空,只有编译时有值
-        $<INSTALL_INTERFACE:include> # 只有install时有值 /home/xcj/xcpp/include
+        $<INSTALL_INTERFACE:include> # 只有install时有值 /home/hdb/xcpp/include
     )
 
     target_include_directories(${name} PRIVATE
@@ -215,7 +215,7 @@ function(cpp_library name)
         ${SRC}
         ${H_FILE_I}
 
-        # ${UI_FILES}
+        ${UI_FILES}
         ${UIC_HEADER}
         ${QRC_FILES}
     )
