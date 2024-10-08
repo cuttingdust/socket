@@ -1,6 +1,7 @@
 #include "XTCP.h"
 
 #include <cstring>
+#include <regex>
 #include <string>
 #include <thread>
 
@@ -15,8 +16,7 @@ public:
     {
         /// 处理客户端数据
         char buffer[BUFFER_SIZE] = {0};
-
-
+        for (;;)
         {
             /// Accept HTTP client requests
             const int recvlen = client_xtcp_.recv(buffer, BUFFER_SIZE - 1);
@@ -44,21 +44,100 @@ public:
             // Accept-Encoding: gzip, deflate, br, zstd
             // Accept-Language: zh-CN,zh;q=0.9
 
+            std::string src = buffer;
+            // /   /index.html /ff
+            std::string pattern = "^([A-Z]+) (.+) HTTP/1";
+            std::regex r(pattern);
+            std::smatch mas;
+            regex_search(src, mas, r);
+            if (mas.size() == 0)
+            {
+                printf("%s failed!\n", pattern.c_str());
+                close();
+                return;
+            }
+
+            std::string type = mas[1];
+            std::string path = mas[2];
+
+
+            if (type != "GET")
+            {
+                printf("Not GET!!!\n");
+                close();
+                return;
+            }
+
+            if (path == "/testsocket")
+            {
+                std::string rmsg = "";
+                rmsg += "HTTP/1.1 200 OK\r\n";
+                rmsg += "Server: XHttp\r\n";
+                rmsg += "Content-Type: text/html\r\n";
+                rmsg += "Content-Length: ";
+                rmsg += "10";
+                rmsg += "\r\n\r\n";
+                rmsg += "0123456789";
+
+                /// Send message header
+                const int sendSize = client_xtcp_.send(rmsg.c_str(), rmsg.size());
+                printf("sendsize = %d\n", sendSize);
+                printf("=======send=========\n%s===================\n", rmsg.c_str());
+                return;
+            }
+
+
+            std::string filename = path;
+            if (path == "/")
+            {
+                filename = "/index.html";
+            }
+
+            std::string filepath = "www";
+            filepath += filename;
+            FILE *fp = fopen(filepath.c_str(), "rb");
+            if (fp == NULL)
+            {
+                close();
+                return;
+            }
+            /// 获取文件大小
+            fseek(fp, 0, SEEK_END);
+            int filesize = ftell(fp);
+            fseek(fp, 0, 0);
+            printf("file size is %d\n", filesize);
+
+            /// 回应http GET请求
+            /// 消息头
             std::string rmsg = "";
-            rmsg += "HTTP/1.1 200 OK\r\n";
+            rmsg = "HTTP/1.1 200 OK\r\n";
             rmsg += "Server: XHttp\r\n";
             rmsg += "Content-Type: text/html\r\n";
             rmsg += "Content-Length: ";
-            rmsg += "10";
+            char bsize[128] = {0};
+            sprintf(bsize, "%d", filesize);
+            rmsg += bsize;
+            // rmsg +=
+            // rmsg += "10\r\n";
             rmsg += "\r\n\r\n";
-            rmsg += "0123456789";
+            // rmsg += "0123456789";
 
-            /// Send message header
-            const int sendSize = client_xtcp_.send(rmsg.c_str(), rmsg.size());
+            /// 发送消息头
+            int sendSize = client_xtcp_.send(rmsg.c_str(), rmsg.size());
             printf("sendsize = %d\n", sendSize);
-            printf("=======send=========\n%s===================\n", rmsg.c_str());
-        }
+            printf("=======send=========\n%s\n=============\n", rmsg.c_str());
 
+            /// 发送正文
+            for (;;)
+            {
+                int len = fread(buffer, 1, sizeof(buffer), fp);
+                if (len <= 0)
+                    break;
+                int re = client_xtcp_.send(buffer, len);
+                if (re <= 0)
+                    break;
+            }
+        }
         close();
     }
 
