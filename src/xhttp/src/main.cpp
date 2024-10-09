@@ -46,7 +46,8 @@ public:
 
             std::string src = buffer;
             // /   /index.html /ff
-            std::string pattern = "^([A-Z]+) (.+) HTTP/1";
+            // std::string pattern = "^([A-Z]+) (.+) HTTP/1"; /// [0] [1] [2]
+            std::string pattern = "^([A-Z]+) /([a-zA-Z0-9]*([.][a-zA-Z]*)?)[?]?(.*) HTTP/1";
             std::regex r(pattern);
             std::smatch mas;
             regex_search(src, mas, r);
@@ -58,8 +59,14 @@ public:
             }
 
             std::string type = mas[1];
-            std::string path = mas[2];
-
+            std::string path = "/";
+            path += mas[2];
+            std::string filetype = mas[3];
+            std::string query = mas[4];
+            if (filetype.size() > 0)
+                filetype = filetype.substr(1, filetype.size() - 1);
+            printf("type:[%s]\npath:[%s]\nfiletype:[%s]\nquery:[%s]\n", type.c_str(), path.c_str(), filetype.c_str(),
+                   query.c_str());
 
             if (type != "GET")
             {
@@ -95,9 +102,35 @@ public:
 
             std::string filepath = "www";
             filepath += filename;
+
+            // php-cgi www/index.php id=1 name=xcj >  www/index.php.html
+            if (filetype == "php")
+            {
+                std::string cmd = "php-cgi ";
+                cmd += filepath;
+                cmd += " ";
+                // query id=1&name=xcj
+                //  id=1 name=xcj
+                for (int i = 0; i < query.size(); i++)
+                {
+                    if (query[i] == '&')
+                        query[i] = ' ';
+                }
+                cmd += query;
+
+                cmd += " > ";
+                filepath += ".html";
+                cmd += filepath;
+
+
+                printf("%s\n", cmd.c_str());
+                system(cmd.c_str());
+            }
+
             FILE *fp = fopen(filepath.c_str(), "rb");
             if (fp == NULL)
             {
+                printf("open file %s failed!\n", filepath.c_str());
                 close();
                 return;
             }
@@ -106,6 +139,24 @@ public:
             int filesize = ftell(fp);
             fseek(fp, 0, 0);
             printf("file size is %d\n", filesize);
+
+            if (filetype == "php")
+            {
+                char c = 0;
+                //\r\n\r\n
+                int headsize = 0;
+                /// 逐行读取文件
+                char line[256]; /// 用于存储每行读取的数据
+                while (fgets(line, sizeof(line), fp))
+                {
+                    headsize += strlen(line); /// 计算当前行的大小
+                    if (strcmp(line, "\r\n") == 0 || strcmp(line, "\n") == 0)
+                    {
+                        break; /// 找到空行，表示头部结束
+                    }
+                }
+                filesize = filesize - headsize;
+            }
 
             /// 回应http GET请求
             /// 消息头
