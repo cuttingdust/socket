@@ -23,7 +23,7 @@ set(SDK_LIB_DIRECTORY
 set(OUT ${CMAKE_CURRENT_SOURCE_DIR}/../out)
 message("out = ${OUT}")
 set(OUT_LIB_PATH ${OUT}/lib)
-set(OUT_DLL_PATH ${OUT}/bin)
+set(OUT_DLL_PATH ${OUT}/bin.x64)
 set(OUT_INCLUDE_PATH ${OUT}/include)
 set(OUT_RUN_PATH ${OUT}/bin.x64)
 

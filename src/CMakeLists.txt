@@ -19,3 +19,8 @@ if(UNIX AND NOT APPLE OR APPLE)
 endif()
 
 add_subdirectory(xtcp)
+
+# 拷贝www目录到输出目录
+set(WWW_PATH ${CMAKE_CURRENT_SOURCE_DIR}/www)
+
+file(COPY ${WWW_PATH} DESTINATION ${OUT_RUN_PATH})

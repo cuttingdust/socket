@@ -30,6 +30,8 @@ public:
 
     char ip_[16];
     unsigned short port_ = -1;
+
+    std::mutex mutex_; // Ìí¼Ó»¥³âËø
 };
 
 XTCP::PImpl::PImpl(XTCP *owenr) : owenr_(owenr) {}
@@ -105,6 +107,9 @@ auto XTCP::accept() -> XTCP
     XTCP tcp;
     sockaddr_in cadder = {};
     socklen_t cadderlen = sizeof(cadder);
+
+    // std::lock_guard<std::mutex> lock(impl_->mutex_); // ¼ÓËø
+
     auto client_fd = ::accept(impl_->socked_fd_, reinterpret_cast<sockaddr *>(&cadder), &cadderlen);
     if (client_fd < 0)
     {

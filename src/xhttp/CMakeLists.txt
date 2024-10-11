@@ -18,3 +18,5 @@ if(MSVC)
     # set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/GL")
     # set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "/LTCG")
 endif()
+
+#拷贝资源文件
