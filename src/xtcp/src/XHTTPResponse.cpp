@@ -51,7 +51,7 @@ auto XHTTPResponse::setRequest(const std::string &request) -> bool
     std::regex r(pattern);
     std::smatch mas;
     std::regex_search(src, mas, r);
-    if (mas.size() == 0)
+    if (mas.empty())
     {
         printf("%s failed!\n", pattern.c_str());
         return false;
@@ -61,10 +61,11 @@ auto XHTTPResponse::setRequest(const std::string &request) -> bool
     path += mas[2];
     std::string filetype = mas[3];
     std::string query = mas[4];
-    if (!filetype.empty())
+    if (type.empty() || path.empty() || filetype.empty())
     {
-        filetype = filetype.substr(1, filetype.size() - 1);
+        return false;
     }
+    filetype = filetype.substr(1, filetype.size() - 1);
     printf("type:[%s]\npath:[%s]\nfiletype:[%s]\nquery:[%s]\n", type.c_str(), path.c_str(), filetype.c_str(),
            query.c_str());
 
