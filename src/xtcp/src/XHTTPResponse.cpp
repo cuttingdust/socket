@@ -23,7 +23,7 @@ XHTTPResponse::XHTTPResponse() { impl_ = std::make_shared<PImpl>(this); }
 
 XHTTPResponse::~XHTTPResponse() = default;
 
-auto XHTTPResponse::setRequest(std::string request) -> bool
+auto XHTTPResponse::setRequest(const std::string &request) -> bool
 {
     if (request.empty())
     {
