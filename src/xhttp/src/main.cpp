@@ -1,6 +1,10 @@
 #include "XHTTPServer.h"
 // #include "XTCP.h"
 
+#ifdef __linux__
+#include <signal.h>
+#endif
+
 #include <stdio.h>
 // #include <cstring>
 // #include <regex>
@@ -208,6 +212,9 @@
 
 int main(int argc, char *argv[])
 {
+#ifdef __linux__
+    signal(SIGPIPE, SIG_IGN);
+#endif
 
     printf("Server start.\n");
 
