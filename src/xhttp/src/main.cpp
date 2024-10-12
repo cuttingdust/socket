@@ -1,7 +1,7 @@
 #include "XHTTPServer.h"
 // #include "XTCP.h"
 
-// #include <cstring>
+#include <cstring>
 // #include <regex>
 // #include <string>
 // #include <thread>
