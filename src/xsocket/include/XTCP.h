@@ -12,9 +12,9 @@
 #ifndef XTCP_H
 #define XTCP_H
 
-#include "XTCP_Global.h"
+#include "XSocket_Global.h"
 
-class XTCP_EXPORT XTCP
+class XSOCKET_EXPORT XTCP
 {
 public:
     XTCP();

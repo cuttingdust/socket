@@ -11,14 +11,16 @@ set(CMAKE_GENERATOR_PLATFORM x64)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(CommonTools)
 
-add_subdirectory(xsocket)
+
+add_subdirectory(xtcp)
 add_subdirectory(xhttp)
+add_subdirectory(xudp)
 
 if(UNIX AND NOT APPLE OR APPLE)
 	add_subdirectory(xepoll)
 endif()
 
-add_subdirectory(xtcp)
+add_subdirectory(xsocket)
 
 # 拷贝www目录到输出目录
 set(WWW_PATH ${CMAKE_CURRENT_SOURCE_DIR}/www)

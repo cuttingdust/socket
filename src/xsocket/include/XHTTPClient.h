@@ -11,11 +11,11 @@
 #ifndef XHTTPCLIENT_H
 #define XHTTPCLIENT_H
 
-#include "XTCP_Global.h"
+#include "XSocket_Global.h"
 
 class XTCP;
 
-class XTCP_EXPORT XHTTPClient
+class XSOCKET_EXPORT XHTTPClient
 {
 public:
     XHTTPClient();

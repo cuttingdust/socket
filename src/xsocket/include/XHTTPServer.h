@@ -11,9 +11,9 @@
 #ifndef XHTTPSERVER_H
 #define XHTTPSERVER_H
 
-#include <XTCP_Global.h>
+#include "XSocket_Global.h"
 
-class XTCP_EXPORT XHTTPServer
+class XSOCKET_EXPORT XHTTPServer
 {
 public:
     XHTTPServer();
