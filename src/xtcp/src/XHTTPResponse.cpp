@@ -23,7 +23,7 @@ XHTTPResponse::XHTTPResponse() { impl_ = std::make_shared<PImpl>(this); }
 
 XHTTPResponse::~XHTTPResponse() = default;
 
-auto XHTTPResponse::setRequest(const std::string &request) -> bool
+auto XHTTPResponse::setRequest(std::string request) -> bool
 {
     if (request.empty())
     {
@@ -61,7 +61,10 @@ auto XHTTPResponse::setRequest(const std::string &request) -> bool
     path += mas[2];
     std::string filetype = mas[3];
     std::string query = mas[4];
-    filetype = filetype.substr(1, filetype.size() - 1);
+    if (!filetype.empty())
+    {
+        filetype = filetype.substr(1, filetype.size() - 1);
+    }
     printf("type:[%s]\npath:[%s]\nfiletype:[%s]\nquery:[%s]\n", type.c_str(), path.c_str(), filetype.c_str(),
            query.c_str());
 
