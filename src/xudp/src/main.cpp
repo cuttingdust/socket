@@ -17,6 +17,8 @@
 #define PORT 8080
 #define BUFFER_SIZE 1024
 
+#define BROAD_MODEL
+
 
 int main(int argc, char *argv[])
 {
@@ -39,10 +41,21 @@ int main(int argc, char *argv[])
                 return -1;
             }
 
+#ifdef BROAD_MODEL
+            int opt = 1;
+            ::setsockopt(sock, SOL_SOCKET, SO_BROADCAST, (char *)&opt, sizeof(opt));
+#endif
+
+
             sockaddr_in saddr;
             saddr.sin_family = AF_INET;
             saddr.sin_port = htons(PORT);
+
+#ifdef BROAD_MODEL
+            saddr.sin_addr.s_addr = INADDR_BROADCAST;
+#else
             saddr.sin_addr.s_addr = inet_addr("127.0.0.1"); // htonl(0);
+#endif
             int len = ::sendto(sock, "12345", 6, 0, (sockaddr *)&saddr, sizeof(saddr));
             printf("Sendto size is %d\n", len);
 
