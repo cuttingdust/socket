@@ -31,6 +31,24 @@ int main(int argc, char *argv[])
         if (strcmp(argv[1], "client") == 0)
         {
             printf("Client start.\n");
+
+            int sock = ::socket(AF_INET, SOCK_DGRAM, 0);
+            if (sock <= 0)
+            {
+                printf("Create socket failed.\n");
+                return -1;
+            }
+
+            sockaddr_in saddr;
+            saddr.sin_family = AF_INET;
+            saddr.sin_port = htons(PORT);
+            saddr.sin_addr.s_addr = inet_addr("127.0.0.1"); // htonl(0);
+            int len = ::sendto(sock, "12345", 6, 0, (sockaddr *)&saddr, sizeof(saddr));
+            printf("Sendto size is %d\n", len);
+
+            char buf[1024] = {0};
+            ::recvfrom(sock, buf, sizeof(buf) - 1, 0, 0, 0);
+            printf("%s\n", buf);
         }
     }
     else /// ·þÎñ¶Ë
