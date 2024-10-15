@@ -15,6 +15,7 @@ include(CommonTools)
 add_subdirectory(xtcp)
 add_subdirectory(xhttp)
 add_subdirectory(xudp)
+add_subdirectory(xsyslog)
 
 if(UNIX AND NOT APPLE OR APPLE)
 	add_subdirectory(xepoll)
