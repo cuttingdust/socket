@@ -1,20 +1,21 @@
-#ifdef _WIN32
-#include <winsock2.h>
-#define socklen_t int
-#pragma comment(lib, "ws2_32.lib")
-#else
-#include <arpa/inet.h> /// For inet_addr
-#include <fcntl.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <unistd.h> /// 包含 close 函数
-#define closesocket close
-#endif
+// #ifdef _WIN32
+// #include <winsock2.h>
+// #define socklen_t int
+// #pragma comment(lib, "ws2_32.lib")
+// #else
+// #include <arpa/inet.h> /// For inet_addr
+// #include <fcntl.h>
+// #include <netinet/in.h>
+// #include <sys/socket.h>
+// #include <unistd.h> /// 包含 close 函数
+// #define closesocket close
+// #endif
 
 #include "XUDP.h"
 
 #include <cstring>
-#include <thread>
+#include <stdio.h>
+// #include <thread>
 
 #define PORT 8080
 #define BUFFER_SIZE 1024
