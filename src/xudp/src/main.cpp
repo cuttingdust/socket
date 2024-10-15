@@ -34,6 +34,13 @@ int main(int argc, char *argv[])
             XUDP udp_client;
 
 
+            // int sock = ::socket(AF_INET, SOCK_DGRAM, 0);
+            // if (sock <= 0)
+            // {
+            //     printf("Create socket failed.\n");
+            //     return -1;
+            // }
+
             int sock = udp_client.createSocket();
             if (sock <= 0)
             {
@@ -52,14 +59,24 @@ int main(int argc, char *argv[])
             saddr.sin_port = htons(PORT);
             saddr.sin_addr.s_addr = INADDR_BROADCAST;
 #else
+            // sockaddr_in saddr;
+            // saddr.sin_family = AF_INET;
+            // saddr.sin_port = htons(PORT);
+            // saddr.sin_addr.s_addr = inet_addr("127.0.0.1"); // htonl(0);
+
             udp_client.setIP("127.0.0.1");
             udp_client.setPort(PORT);
 #endif
+            // int len = ::sendto(sock, "12345", 6, 0, (sockaddr *)&saddr, sizeof(saddr));
             auto len = udp_client.send("12345", 6);
             printf("Sendto size is %d\n", len);
 
             char buf[1024] = {0};
+            /// Çå¿ÕipºÍport
+            udp_client.setIP("");
+            udp_client.setPort(0);
             udp_client.recv(buf, sizeof(buf) - 1);
+            // ::recvfrom(sock, buf, sizeof(buf) - 1, 0, 0, 0);
             printf("%s\n", buf);
         }
     }
@@ -68,15 +85,41 @@ int main(int argc, char *argv[])
         printf("Server start.\n");
         XUDP udp_server;
         auto fd = udp_server.createSocket();
-        if (fd < 0)
-        {
-            return -1;
-        }
+        // int fd = ::socket(AF_INET, SOCK_DGRAM, 0);
+        // if (fd < 0)
+        // {
+        //     printf("Create socket failed.\n");
+        //     return -1;
+        // }
+
+        // sockaddr_in saddr;
+        // saddr.sin_family = AF_INET;
+        // saddr.sin_port = htons(PORT);
+        // saddr.sin_addr.s_addr = htonl(INADDR_ANY);
+        //
+        // if (::bind(fd, (sockaddr *)&saddr, sizeof(saddr)) < 0)
+        // {
+        //     printf("Bind port %d failed.\n", PORT);
+        //     return -2;
+        // }
+        // printf("Bind port %d success.\n", PORT);
+        // ::listen(fd, 10);
 
         if (udp_server.bind(PORT) < 0)
         {
             return -2;
         }
+
+        // sockaddr_in *client = new sockaddr_in();
+        // socklen_t len = sizeof(sockaddr_in);
+        // char buffer[BUFFER_SIZE] = {0};
+        // int re_len = ::recvfrom(fd, buffer, sizeof(buffer), 0, (sockaddr *)client, &len);
+        // if (re_len <= 0)
+        // {
+        //     printf("RecvFrom failed.\n");
+        //     return -3;
+        // }
+        // printf("Recv %s:%d\n", inet_ntoa(client->sin_addr), ntohs(client->sin_port));
 
         char buffer[BUFFER_SIZE] = {0};
         int re_len = udp_server.recv(buffer, sizeof(buffer));
@@ -89,7 +132,8 @@ int main(int argc, char *argv[])
 
         buffer[re_len] = '\0';
         printf("%s\n", buffer);
-        udp_server.send("Hello, I am server.", 20);
+        // ::sendto(fd, "67890", 5, 0, (sockaddr *)client, len);
+        udp_server.send("67890", 5);
     }
     getchar();
 }
