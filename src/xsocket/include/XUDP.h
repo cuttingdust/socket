@@ -59,6 +59,10 @@ public:
     /// \param port
     auto setPort(unsigned short port) -> void;
 
+    /// \brief 设置成广播模式
+    /// \param bOpenModel
+    auto setBroadModel(bool bOpenModel) -> void;
+
 private:
     class PImpl;
     std::shared_ptr<PImpl> impl_;

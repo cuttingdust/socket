@@ -31,6 +31,8 @@ public:
     int socked_fd_ = -1;
 
     sockaddr_in *addr_ = 0;
+
+    bool broad_model_ = false;
 };
 
 XUDP::PImpl::PImpl(XUDP *owenr) : owenr_(owenr) {}
@@ -141,6 +143,11 @@ auto XUDP::getIP() const -> char *
 
 auto XUDP::setIP(const char *ip) -> void
 {
+    if (impl_->broad_model_)
+    {
+        return;
+    }
+
     if (impl_->addr_ == nullptr)
     {
         impl_->addr_ = new sockaddr_in();
@@ -166,4 +173,22 @@ auto XUDP::setPort(unsigned short port) -> void
     }
 
     impl_->addr_->sin_port = htons(port);
+}
+
+auto XUDP::setBroadModel(bool bOpenModel) -> void
+{
+    if (impl_->socked_fd_ < 0)
+        return;
+
+    impl_->broad_model_ = bOpenModel;
+    int opt = bOpenModel ? 1 : 0;
+    ::setsockopt(impl_->socked_fd_, SOL_SOCKET, SO_BROADCAST, reinterpret_cast<char *>(&opt), sizeof(opt));
+    printf("Set broad model %s\n", bOpenModel ? "true" : "false");
+
+    if (impl_->addr_ == nullptr)
+    {
+        impl_->addr_ = new sockaddr_in();
+        impl_->addr_->sin_family = AF_INET;
+    }
+    impl_->addr_->sin_addr.s_addr = INADDR_BROADCAST;
 }
