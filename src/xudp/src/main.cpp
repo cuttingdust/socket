@@ -19,7 +19,7 @@
 #define PORT 8080
 #define BUFFER_SIZE 1024
 
-#define BROAD_MODEL
+// #define BROAD_MODEL
 
 
 int main(int argc, char *argv[])

@@ -10,7 +10,7 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <unistd.h> /// °üº¬ close º¯Êý
-#define closesocket close
+#define closesocket ::close
 #endif
 
 #include <mutex>
