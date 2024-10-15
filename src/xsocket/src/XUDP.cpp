@@ -123,9 +123,15 @@ auto XUDP::send(const char *buf, int buf_size) -> int
 
 auto XUDP::close() -> void
 {
-    if (impl_->socked_fd_ <= 0)
+    if (impl_->socked_fd_ < 0)
         return;
-    closesocket(impl_->socked_fd_);
+
+    if (::closesocket(impl_->socked_fd_) < 0)
+    {
+        printf("Failed to close socket.\n");
+        return;
+    }
+
     if (impl_->addr_)
     {
         delete impl_->addr_;
