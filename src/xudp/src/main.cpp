@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
         // printf("Bind port %d success.\n", PORT);
         // ::listen(fd, 10);
 
-        if (udp_server.bind(PORT))
+        if (!udp_server.bind(PORT))
         {
             return -2;
         }
