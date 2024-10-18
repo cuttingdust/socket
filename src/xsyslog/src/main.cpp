@@ -7,7 +7,7 @@
 #include <iostream>
 #include <regex>
 #include <string>
-using namespace std;
+
 int main(int argc, char *argv[])
 {
     printf("XSysLog Server start!\n");
@@ -27,19 +27,33 @@ int main(int argc, char *argv[])
             continue;
         }
         buf[len] = '\0';
-        printf("Received: %s\n", buf);
+        // printf("Received: %s\n", buf);
 
-        // // Failed password for xcj from 192.168.3.76 port 16939 ssh2
-        // string src = buf;
-        // string p = "Failed password for ([a-zA-Z0-9]+) from ([0-9.]+)";
-        // regex r(p);
-        // smatch mas;
-        // // 分析日志内容
-        // regex_search(src, mas, r);
-        // if (mas.size() > 0)
-        // {
-        //     cout << "Warning: User " << mas[1] << "@" << mas[2] << "login failed!" << endl;
-        // }
+        /// <12>Oct 15 15:42:27 DSM918 Connection: User [hildness] from [240e:390:6e1:93a0:7c3b:9be8:5244:89b7] failed
+        /// to sign in to [DSM] via [password] due to authorization failure.
+        std::string src = buf;
+        ///  正则表达式
+        std::regex logRegex(
+            R"(<\d+>(\s*(.*?)\s\d+ \d+:\d+:\d+) ([a-zA-Z0-9]+) Connection: User \[([a-zA-Z0-9]+)] from \[(\b(?:(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){2})?\b)] failed to sign in to \[[a-zA-Z0-9]+] via \[password] due to authorization failure.)");
+
+        std::smatch match;
+        if (std::regex_search(src, match, logRegex))
+        {
+            std::string timestamp = match[1]; /// 时间
+            std::string device = match[2]; /// 设备名称
+            std::string user = match[3]; /// 用户名
+            std::string ip = match[4]; /// IP 地址
+
+            /// 输出结果
+            std::cout << "Timestamp: " << timestamp << std::endl;
+            std::cout << "Device: " << device << std::endl;
+            std::cout << "User: " << user << std::endl;
+            std::cout << "IP: " << ip << std::endl;
+        }
+        else
+        {
+            std::cout << "No match found." << std::endl;
+        }
     }
     return 0;
 }
