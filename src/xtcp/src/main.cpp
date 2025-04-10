@@ -88,4 +88,7 @@ int main(int argc, char *argv[])
 
         xserver.close();
     }
+
+    getchar();
+    return 0;
 }
