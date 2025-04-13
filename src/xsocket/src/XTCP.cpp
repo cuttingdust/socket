@@ -60,7 +60,7 @@ XTCP::~XTCP() {}
 
 auto XTCP::createSocket() const -> int
 {
-    impl_->socked_fd_ = socket(AF_INET, SOCK_STREAM, 0);
+    impl_->socked_fd_ = ::socket(AF_INET, SOCK_STREAM, 0);
     if (impl_->socked_fd_ < 0)
     {
         printf("Failed to create socket.\n");
@@ -92,7 +92,7 @@ auto XTCP::bind(unsigned int port) -> bool
     printf("Bind to port %d\n", port);
 
     /// ¿ªÊ¼¼àÌı
-    if (listen(impl_->socked_fd_, 10) < 0)
+    if (::listen(impl_->socked_fd_, 10) < 0)
     {
         printf("Listen failed.\n");
         return false;
